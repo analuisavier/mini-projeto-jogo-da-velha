@@ -111,7 +111,7 @@ def partida():
             print(f"\nÉ a vez de {exibir_o()} ({jogador_atual_nome})")
 
         try:
-            jogada_str = input("Digite a sua jogada no formato 'linha coluna' (ex: a 0): ")
+            jogada_str = input("Digite a sua jogada no formato 'linha coluna' (ex: A 0): ")
             jogada_split = jogada_str.split()
             
             if len(jogada_split) != 2:
@@ -119,7 +119,7 @@ def partida():
 
             letra_linha = jogada_split[0].lower()
             # Converte a letra da linha para um índice numérico (A=0, B=1, etc.)
-            linha = ord(letra_linha) - ord('A')
+            linha = ord(letra_linha) - ord('a')
             coluna = int(jogada_split[1])
 
             if not (0 <= linha < tamanho_tabuleiro and 0 <= coluna < tamanho_tabuleiro):
