@@ -2,7 +2,7 @@ import numpy as np
 import time
 import os
 
-# Códigos de escape ANSI para cores no terminal
+# Códigos de escape ANSI para cores
 CORES = {
     'vermelho': '\033[31m',
     'verde': '\033[32m',
@@ -16,10 +16,8 @@ CORES = {
 }
 
 def limpar_tela():
-    """Limpa a tela do terminal."""
     os.system('cls' if os.name == 'nt' else 'clear')
 
-# --- CONFIGURAÇÕES GLOBAIS DO JOGO ---
 COR_X = CORES['roxo']  
 COR_O = CORES['ciano']  
 
@@ -29,30 +27,31 @@ def exibir_x():
 def exibir_o():
     return f"{COR_O}O{CORES['reset']}"
 
-# --- VARIÁVEIS GLOBAIS ---
+#Variáveis
 jogador_X = "Jogador X"
 jogador_O = "Jogador O"
 tamanho_tabuleiro = 3
 tamanho_sequencia = 3
 placar = {}
 
-# --- FUNÇÕES DE LÓGICA DO JOGO ---
+# FUNÇÕES DE LÓGICA DO JOGO 
 
 def criar_tabuleiro(tamanho):
-    """Cria uma matriz vazia para o tabuleiro."""
+    #Cria uma matriz vazia para o tabuleiro.
     return np.full((tamanho, tamanho), ' ')
 
 def exibir_tabuleiro(tabuleiro):
-    """Exibe o tabuleiro formatado com coordenadas."""
+    # Exibe o tabuleiro formatado com coordenadas.
     limpar_tela()
     tamanho = len(tabuleiro)
     
-    # Imprime os números das colunas
-    print("   " + "  ".join([f"{CORES['amarelo']}{i+1}{CORES['reset']}" for i in range(tamanho)]))
+    print("   " + "   ".join([f"{CORES['amarelo']}{i}{CORES['reset']}" for i in range(tamanho)]))
     
+    print("  " + "---" * tamanho + "-" * (tamanho - 1))
+
     for i in range(tamanho):
-        # Imprime o número da linha
-        print(f"{CORES['amarelo']}{i+1}{CORES['reset']} ", end="")
+        # Imprime a letra da linha (A a J)
+        print(f"{CORES['amarelo']}{chr(ord('A') + i)}{CORES['reset']}{CORES['branco']}|{CORES['reset']}", end="")
         for j in range(tamanho):
             if tabuleiro[i, j] == 'X':
                 print(f" {exibir_x()} ", end="")
@@ -62,10 +61,12 @@ def exibir_tabuleiro(tabuleiro):
                 print("   ", end="")
             if j < tamanho - 1:
                 print(f"{CORES['branco']}|{CORES['reset']}", end="")
-        print()
+        print(f"{CORES['branco']}|{CORES['reset']}")
         if i < tamanho - 1:
             print("  " + "---" * tamanho + "-" * (tamanho - 1))
-
+    
+    print("  " + "---" * tamanho + "-" * (tamanho - 1))
+    
 def verificar_vitoria(tabuleiro, jogador_simbolo, linha, coluna, sequencia_vitoria):
     tamanho = len(tabuleiro)
 
@@ -110,13 +111,16 @@ def partida():
             print(f"\nÉ a vez de {exibir_o()} ({jogador_atual_nome})")
 
         try:
-            jogada_str = input("Digite a sua jogada no formato 'linha coluna' (ex: 1 1): ")
-            jogada = list(map(int, jogada_str.split()))
+            jogada_str = input("Digite a sua jogada no formato 'linha coluna' (ex: a 0): ")
+            jogada_split = jogada_str.split()
             
-            if len(jogada) != 2:
-                raise ValueError("Entrada inválida. Digite dois números.")
+            if len(jogada_split) != 2:
+                raise ValueError("Entrada inválida. Digite uma letra e um número.")
 
-            linha, coluna = jogada[0] - 1, jogada[1] - 1
+            letra_linha = jogada_split[0].lower()
+            # Converte a letra da linha para um índice numérico (A=0, B=1, etc.)
+            linha = ord(letra_linha) - ord('A')
+            coluna = int(jogada_split[1])
 
             if not (0 <= linha < tamanho_tabuleiro and 0 <= coluna < tamanho_tabuleiro):
                 print(f"{CORES['vermelho']}Jogada fora do tabuleiro! Tente novamente.{CORES['reset']}")
@@ -129,7 +133,7 @@ def partida():
                 continue
 
         except (ValueError, IndexError):
-            print(f"{CORES['vermelho']}Entrada inválida. Use o formato 'linha coluna' com números válidos.{CORES['reset']}")
+            print(f"{CORES['vermelho']}Entrada inválida. Use o formato 'letra número' (ex: a 0) com coordenadas válidas.{CORES['reset']}")
             time.sleep(2)
             continue
         
@@ -153,7 +157,7 @@ def partida():
     exibir_tabuleiro(tabuleiro)
     return None # Retorna None em caso de empate
 
-# --- FUNÇÕES DO MENU ---
+# FUNÇÕES DO MENU 
 def mostrar_placar(placar_atual):
     print(f"\n{CORES['amarelo']}Placar:{CORES['reset']}")
     if not placar_atual:
@@ -176,7 +180,7 @@ def mostrar_placar(placar_atual):
             del placar_atual[j]
 
 
-# --- LOOP PRINCIPAL DO MENU ---
+# LOOP PRINCIPAL MENU 
 while True:
     limpar_tela()
     
@@ -208,16 +212,15 @@ while True:
             
     elif opcao == '3':
         try:
-            novo_tamanho = int(input(f"Digite o tamanho do tabuleiro (mínimo 3): "))
-            if novo_tamanho >= 3:
+            novo_tamanho = int(input(f"Digite o tamanho do tabuleiro (entre 3 e 10): "))
+            if 3 <= novo_tamanho <= 10:
                 tamanho_tabuleiro = novo_tamanho
                 print(f"{CORES['verde']}Tamanho do tabuleiro definido: {tamanho_tabuleiro}x{tamanho_tabuleiro}{CORES['reset']}")
-                # Ajusta a sequência se ela for maior que o novo tabuleiro
                 if tamanho_sequencia > tamanho_tabuleiro:
                     tamanho_sequencia = tamanho_tabuleiro
                     print(f"{CORES['amarelo']}Sequência de vitória ajustada para {tamanho_sequencia}{CORES['reset']}")
             else:
-                print(f"{CORES['vermelho']}Tamanho deve ser no mínimo 3!{CORES['reset']}")
+                print(f"{CORES['vermelho']}Tamanho deve estar entre 3 e 10!{CORES['reset']}")
         except ValueError:
             print(f"{CORES['vermelho']}Por favor, digite um número válido!{CORES['reset']}")
         time.sleep(1.5)
@@ -261,7 +264,6 @@ while True:
             else:
                 print(f"\n{CORES['verde']}{exibir_o()} {vencedor_da_partida} venceu!{CORES['reset']}")
         else:
-            # caso de empate
             print(f"\n{CORES['amarelo']}O jogo terminou em empate!{CORES['reset']}")
 
         time.sleep(2)
